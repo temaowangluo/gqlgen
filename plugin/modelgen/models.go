@@ -61,6 +61,22 @@ func (m *Plugin) Name() string {
 	return "modelgen"
 }
 
+func UnderscoreName(name string) string {
+	builder := strings.Builder{}
+	for i, r := range name {
+		if unicode.IsUpper(r) {
+			if i != 0 {
+				builder.WriteRune('_')
+			}
+			builder.WriteRune(unicode.ToLower(r))
+		} else {
+			builder.WriteRune(r)
+		}
+	}
+
+	return builder.String()
+}
+
 func (m *Plugin) MutateConfig(cfg *config.Config) error {
 	if err := cfg.Check(); err != nil {
 		return err
@@ -172,11 +188,19 @@ func (m *Plugin) MutateConfig(cfg *config.Config) error {
 					typ = types.NewPointer(typ)
 				}
 
+				tagName := UnderscoreName(field.Name)
+				tag := `json:"` + tagName + `" mapstructure:"` + tagName + `"`
+				if tagName == "id" {
+					tag += ` bson:"_` + tagName + `,omitempty"`
+				} else {
+					tag += ` bson:"` + tagName + `,omitempty"`
+				}
+				
 				it.Fields = append(it.Fields, &Field{
 					Name:        name,
 					Type:        typ,
 					Description: field.Description,
-					Tag:         `json:"` + field.Name + `"`,
+					Tag:         tag,
 				})
 			}
 
