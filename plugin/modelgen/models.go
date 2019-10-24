@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"go/types"
 	"sort"
+	"strings"
 
 	"github.com/99designs/gqlgen/codegen/config"
 	"github.com/99designs/gqlgen/codegen/templates"
 	"github.com/99designs/gqlgen/plugin"
 	"github.com/vektah/gqlparser/ast"
+	
+	"unicode"
 )
 
 type ModelBuild struct {
